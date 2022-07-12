@@ -27,6 +27,8 @@ const (
 
 // RunnerDeploymentSpec defines the desired state of RunnerDeployment
 type RunnerDeploymentSpec struct {
+	// Number of desired runners. This is a pointer to distinguish between explicit
+	// zero and not specified.
 	// +optional
 	// +nullable
 	Replicas *int `json:"replicas,omitempty"`
@@ -42,6 +44,8 @@ type RunnerDeploymentSpec struct {
 	// +optional
 	// +nullable
 	Selector *metav1.LabelSelector `json:"selector"`
+
+	// Template describes the runners that will be created.
 	Template RunnerTemplate        `json:"template"`
 }
 
@@ -64,7 +68,7 @@ type RunnerDeploymentStatus struct {
 	// +optional
 	UpdatedReplicas *int `json:"updatedReplicas"`
 
-	// DesiredReplicas is the total number of desired, non-terminated and latest pods to be set for the primary RunnerSet
+	// DesiredReplicas is the total number of desired, non-terminated and latest pods to be set for the primary RunnerSet.
 	// This doesn't include outdated pods while upgrading the deployment and replacing the runnerset.
 	// +optional
 	DesiredReplicas *int `json:"desiredReplicas"`

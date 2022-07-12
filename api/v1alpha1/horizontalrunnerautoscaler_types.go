@@ -22,7 +22,7 @@ import (
 
 // HorizontalRunnerAutoscalerSpec defines the desired state of HorizontalRunnerAutoscaler
 type HorizontalRunnerAutoscalerSpec struct {
-	// ScaleTargetRef sis the reference to scaled resource like RunnerDeployment
+	// ScaleTargetRef is the reference to scaled resource like RunnerDeployment
 	ScaleTargetRef ScaleTargetRef `json:"scaleTargetRef,omitempty"`
 
 	// MinReplicas is the minimum number of replicas the deployment is allowed to scale
@@ -66,8 +66,14 @@ type HorizontalRunnerAutoscalerSpec struct {
 }
 
 type ScaleUpTrigger struct {
+	// Section to specify what GitHub webhook Event is checked to trigger the scale up.
+	// Possible values are: checkRun, workflowJob, push, pullRequest.
 	GitHubEvent *GitHubEventScaleUpTriggerSpec `json:"githubEvent,omitempty"`
+
+	// Amount of runner replicas to create.
 	Amount      int                            `json:"amount,omitempty"`
+
+	// Amount of time the requested replicas are going to last (5m, 1h...)
 	Duration    metav1.Duration                `json:"duration,omitempty"`
 }
 
@@ -133,7 +139,8 @@ type ScaleTargetRef struct {
 
 type MetricSpec struct {
 	// Type is the type of metric to be used for autoscaling.
-	// The only supported Type is TotalNumberOfQueuedAndInProgressWorkflowRuns
+	// Supported types are: PercentageRunnersBusy, TotalNumberOfQueuedAndInProgressWorkflowRuns
+	// +kubebuilder:validation:Enum=PercentageRunnersBusy;TotalNumberOfQueuedAndInProgressWorkflowRuns
 	Type string `json:"type,omitempty"`
 
 	// RepositoryNames is the list of repository names to be used for calculating the metric.
@@ -153,11 +160,13 @@ type MetricSpec struct {
 
 	// ScaleUpFactor is the multiplicative factor applied to the current number of runners used
 	// to determine how many pods should be added.
+	// You can only specify either ScaleUpFactor or ScaleUpAdjustment.
 	// +optional
 	ScaleUpFactor string `json:"scaleUpFactor,omitempty"`
 
 	// ScaleDownFactor is the multiplicative factor applied to the current number of runners used
 	// to determine how many pods should be removed.
+	// You can only specify either ScaleDownFactor or ScaleDownAdjustment.
 	// +optional
 	ScaleDownFactor string `json:"scaleDownFactor,omitempty"`
 
@@ -188,6 +197,7 @@ type ScheduledOverride struct {
 	// +kubebuilder:validation:Minimum=0
 	MinReplicas *int `json:"minReplicas,omitempty"`
 
+	// Define additional options to repeat the scheduled override.
 	// +optional
 	RecurrenceRule RecurrenceRule `json:"recurrenceRule,omitempty"`
 }
